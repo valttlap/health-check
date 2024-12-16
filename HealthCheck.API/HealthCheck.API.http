@@ -1,0 +1,6 @@
+@HealthCheck.API_HostAddress = http://localhost:5105
+
+GET {{HealthCheck.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
