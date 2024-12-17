@@ -55,6 +55,7 @@ public partial class HealthCheckContext : DbContext
             entity.Property(e => e.CurrentCategoryId)
                 .HasDefaultValue(1)
                 .HasColumnName("current_category_id");
+            entity.Property(e => e.HostConnectionId).HasColumnName("host_connection_id");
             entity.Property(e => e.JoinCode).HasColumnName("join_code");
 
             entity.HasOne(d => d.CurrentCategory).WithMany(p => p.Sessions)
@@ -72,6 +73,7 @@ public partial class HealthCheckContext : DbContext
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("id");
+            entity.Property(e => e.ConnectionId).HasColumnName("connection_id");
             entity.Property(e => e.SessionId).HasColumnName("session_id");
 
             entity.HasOne(d => d.Session).WithMany(p => p.SessionUsers)

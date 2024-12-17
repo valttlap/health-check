@@ -9,6 +9,8 @@ public partial class SessionUser
 
     public Guid SessionId { get; set; }
 
+    public string? ConnectionId { get; set; }
+
     public virtual Session Session { get; set; } = null!;
 
     public virtual ICollection<Vote> Votes { get; set; } = new List<Vote>();

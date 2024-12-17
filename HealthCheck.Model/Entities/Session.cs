@@ -11,6 +11,8 @@ public partial class Session
 
     public int CurrentCategoryId { get; set; }
 
+    public string? HostConnectionId { get; set; }
+
     public virtual Category CurrentCategory { get; set; } = null!;
 
     public virtual ICollection<SessionUser> SessionUsers { get; set; } = new List<SessionUser>();
