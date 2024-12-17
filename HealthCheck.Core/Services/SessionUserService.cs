@@ -18,4 +18,9 @@ public class SessionUserService(IUnitOfWork unitOfWork) : ISessionUserService
     {
         return await _unitOfWork.SessionUserRepository.GetUserById(id);
     }
+
+    public async Task UpdateConnectionId(Guid id, string connectionId)
+    {
+        await _unitOfWork.SessionUserRepository.UpdateConnectionId(id, connectionId);
+    }
 }

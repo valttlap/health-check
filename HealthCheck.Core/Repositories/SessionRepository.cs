@@ -41,6 +41,11 @@ public class SessionRepository(HealthCheckContext context) : ISessionRepository
             .FirstAsync();
     }
 
+    public async Task<string?> GetHostConnectionId(Guid id)
+    {
+        return await _context.Sessions.Where(s => s.Id == id).Select(s => s.HostConnectionId).FirstAsync();
+    }
+
     public async Task<int> GetSessionCategoryVoteCount(Guid id, int categoryId)
     {
         return await _context.Sessions
@@ -82,4 +87,10 @@ public class SessionRepository(HealthCheckContext context) : ISessionRepository
         return nextCategory;
     }
 
+    public async Task UpdateHostConnectionId(Guid id, string connectionId)
+    {
+        var session = await _context.Sessions.FindAsync(id) ?? throw new InvalidOperationException($"Session with {id} not found");
+        session.HostConnectionId = connectionId;
+        await _context.SaveChangesAsync();
+    }
 }

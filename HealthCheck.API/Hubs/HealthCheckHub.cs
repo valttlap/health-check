@@ -1,9 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Interfaces;
-using HealthCheck.Model.Entities;
 
 using Microsoft.AspNetCore.SignalR;
 
@@ -17,6 +15,39 @@ public class HealthCheckHub(ISessionService sessionService, ISessionUserService 
 
     public override async Task OnConnectedAsync()
     {
+        var user = Context.User ?? throw new InvalidOperationException("User is null");
+
+        var sessionIdClaim = user.FindFirst("sessionId") ?? throw new InvalidOperationException("Session ID claim is null");
+        var sessionGuid = Guid.Parse(sessionIdClaim.Value);
+
+        var isHostClaim = user.FindFirst("isHost");
+        var userIdClaim = user.FindFirst(JwtRegisteredClaimNames.Sub);
+        string? hostConnectionId;
+        if (isHostClaim?.Value == "true")
+        {
+            hostConnectionId = Context.ConnectionId;
+            await _sessionService.UpdateHostConnectionId(sessionGuid, hostConnectionId);
+        }
+        else if (userIdClaim is not null)
+        {
+            var userGuid = Guid.Parse(userIdClaim.Value);
+            await _sessionUserService.UpdateConnectionId(userGuid, Context.ConnectionId);
+            hostConnectionId = await _sessionService.GetHostConnectionId(sessionGuid);
+        }
+        else
+        {
+            throw new InvalidOperationException("User has to have user id or be host");
+        }
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, sessionIdClaim.Value);
+
+
+        if (hostConnectionId is not null)
+        {
+            var userCount = await _sessionService.SessionUserCount(sessionGuid);
+            await Clients.Client(hostConnectionId).SendAsync("UserConnected", userCount);
+        }
+
         await base.OnConnectedAsync();
     }
 
@@ -30,7 +61,7 @@ public class HealthCheckHub(ISessionService sessionService, ISessionUserService 
         var sessionGuid = Guid.Parse(sessionId);
 
         if (await _sessionUserService.GetUserById(userGuid) is null) throw new ApplicationException($"No user found for id: {userId}");
-        if (await _sessionService.GetSession(sessionGuid) is null) throw new ApplicationException($"No session found for id: {sessionId}");
+        var session = await _sessionService.GetSession(sessionGuid) ?? throw new ApplicationException($"No session found for id: {sessionId}");
 
         await _voteService.CastVote(userGuid, sessionGuid, categoryId, value);
 
@@ -39,15 +70,16 @@ public class HealthCheckHub(ISessionService sessionService, ISessionUserService 
             try
             {
                 var nextCategory = await _sessionService.MoveToNextCategory(sessionGuid);
-                await Clients.GroupExcept(sessionId, "TODO: HOST CONNECTION STRING").SendAsync("NextCategory", nextCategory.Id);
-                await Clients.Client("TODO: HOST").SendAsync("NewCategory", nextCategory);
+                await Clients.GroupExcept(sessionId, session.HostConnectionId!).SendAsync("NextCategory", nextCategory.Id);
+                await Clients.Client(session.HostConnectionId!).SendAsync("NewCategory", nextCategory);
             }
             catch (AlreadyLastCategoryException)
             {
-                await Clients.GroupExcept(sessionId, "TODO: HOST CONNECTION STRING").SendAsync("SurveyEnded");
+                await Clients.GroupExcept(sessionId, session.HostConnectionId!).SendAsync("SurveyEnded");
                 var finalResult = _sessionService.GetFinalResult(sessionGuid);
-                await Clients.Client("TODO: HOST").SendAsync("FinalResults", finalResult);
+                await Clients.Client(session.HostConnectionId!).SendAsync("FinalResults", finalResult);
             }
         }
+
     }
 }

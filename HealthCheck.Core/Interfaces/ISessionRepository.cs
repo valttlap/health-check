@@ -12,4 +12,6 @@ public interface ISessionRepository
     public Task<IEnumerable<Vote>> GetSessionVotes(Guid id);
     public Task<int> GetSessionUsersCount(Guid id);
     public Task<int> GetSessionCategoryVoteCount(Guid id, int categoryId);
+    public Task UpdateHostConnectionId(Guid id, string connectionId);
+    public Task<string?> GetHostConnectionId(Guid id);
 }

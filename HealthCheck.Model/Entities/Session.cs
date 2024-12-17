@@ -13,6 +13,8 @@ public partial class Session
 
     public string? HostConnectionId { get; set; }
 
+    public bool IsStarted { get; set; }
+
     public virtual Category CurrentCategory { get; set; } = null!;
 
     public virtual ICollection<SessionUser> SessionUsers { get; set; } = new List<SessionUser>();

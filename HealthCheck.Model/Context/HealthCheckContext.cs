@@ -56,6 +56,9 @@ public partial class HealthCheckContext : DbContext
                 .HasDefaultValue(1)
                 .HasColumnName("current_category_id");
             entity.Property(e => e.HostConnectionId).HasColumnName("host_connection_id");
+            entity.Property(e => e.IsStarted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_started");
             entity.Property(e => e.JoinCode).HasColumnName("join_code");
 
             entity.HasOne(d => d.CurrentCategory).WithMany(p => p.Sessions)

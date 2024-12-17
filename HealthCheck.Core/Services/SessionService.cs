@@ -68,4 +68,19 @@ public class SessionService(IUnitOfWork unitOfWork) : ISessionService
     {
         return await _unitOfWork.SessionRepository.GetByJoinCode(joinCode);
     }
+
+    public async Task UpdateHostConnectionId(Guid id, string connectionId)
+    {
+        await _unitOfWork.SessionRepository.UpdateHostConnectionId(id, connectionId);
+    }
+
+    public async Task<int> SessionUserCount(Guid id)
+    {
+        return await _unitOfWork.SessionRepository.GetSessionUsersCount(id);
+    }
+
+    public async Task<string?> GetHostConnectionId(Guid id)
+    {
+        return await _unitOfWork.SessionRepository.GetHostConnectionId(id);
+    }
 }

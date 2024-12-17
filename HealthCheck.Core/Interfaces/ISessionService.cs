@@ -11,6 +11,7 @@ public interface ISessionService
     Task<bool> EveryoneVoted(Guid id, int categoryId);
     Task<Category> MoveToNextCategory(Guid id);
     Task<IEnumerable<FinalResultDto>> GetFinalResult(Guid id);
-
-
+    Task UpdateHostConnectionId(Guid id, string connectionId);
+    Task<int> SessionUserCount(Guid id);
+    Task<string?> GetHostConnectionId(Guid id);
 }

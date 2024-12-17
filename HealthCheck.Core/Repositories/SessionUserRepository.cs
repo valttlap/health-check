@@ -22,4 +22,11 @@ public class SessionUserRepository(HealthCheckContext context) : ISessionUserRep
     {
         return await _context.SessionUsers.FindAsync(id);
     }
+
+    public async Task UpdateConnectionId(Guid id, string connectionId)
+    {
+        var user = await _context.SessionUsers.FindAsync(id) ?? throw new InvalidOperationException($"User with id: {id} not found");
+        user.ConnectionId = connectionId;
+        await _context.SaveChangesAsync();
+    }
 }
