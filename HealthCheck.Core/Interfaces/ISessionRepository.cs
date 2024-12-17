@@ -5,6 +5,7 @@ namespace HealthCheck.Core.Interfaces;
 public interface ISessionRepository
 {
     public Task<Session?> GetById(Guid id);
+    public Task<Session?> GetByJoinCode(int joinCode);
     public Task<Session> CreateSession(int joinCode);
     public Task<Category> GetCategoryForSession(Guid id);
     public Task<Category> MoveToNextCategory(Guid id);

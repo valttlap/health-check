@@ -1,11 +1,26 @@
+using HealthCheck.API.Extensions;
+using HealthCheck.API.Hubs;
+using HealthCheck.Model.Context;
+
+using Microsoft.EntityFrameworkCore;
+
+using Npgsql;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddApplicationServices(builder.Configuration);
+var connStringBuilder = new NpgsqlConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+var connString = connStringBuilder.ConnectionString;
+
+var datasourceBuilder = new NpgsqlDataSourceBuilder(connString);
+
+var datasource = datasourceBuilder.Build();
+
+builder.Services.AddDbContext<HealthCheckContext>(opt => opt.UseNpgsql(datasource));
 
 var app = builder.Build();
 
@@ -18,8 +33,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHsts();
 
-app.UseAuthorization();
-
 app.MapControllers();
+app.MapHub<HealthCheckHub>("hubs/health-check-hub");
 
 app.Run();

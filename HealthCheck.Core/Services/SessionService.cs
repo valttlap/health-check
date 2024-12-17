@@ -63,4 +63,9 @@ public class SessionService(IUnitOfWork unitOfWork) : ISessionService
         int number = random.Next(100000, 1000000);
         return number;
     }
+
+    public async Task<Session?> GetSessionByJoinCode(int joinCode)
+    {
+        return await _unitOfWork.SessionRepository.GetByJoinCode(joinCode);
+    }
 }

@@ -28,6 +28,11 @@ public class SessionRepository(HealthCheckContext context) : ISessionRepository
         return await _context.Sessions.FindAsync(id);
     }
 
+    public async Task<Session?> GetByJoinCode(int joinCode)
+    {
+        return await _context.Sessions.FirstOrDefaultAsync(s => s.JoinCode == joinCode);
+    }
+
     public async Task<Category> GetCategoryForSession(Guid id)
     {
         return await _context.Sessions
