@@ -1,0 +1,77 @@
+
+using HealthCheck.Core.Exceptions;
+using HealthCheck.Core.Interfaces;
+using HealthCheck.Model.Context;
+using HealthCheck.Model.Entities;
+
+using Microsoft.EntityFrameworkCore;
+
+namespace HealthCheck.Core.Repositories;
+
+public class SessionRepository(HealthCheckContext context) : ISessionRepository
+{
+    private readonly HealthCheckContext _context = context;
+
+    public async Task<Session> CreateSession()
+    {
+        var newSession = new Session();
+        await _context.Sessions.AddAsync(newSession);
+        await _context.SaveChangesAsync();
+        return newSession;
+    }
+
+    public async Task<Session?> GetById(Guid id)
+    {
+        return await _context.Sessions.FindAsync(id);
+    }
+
+    public async Task<Category> GetCategoryForSession(Guid id)
+    {
+        return await _context.Sessions
+            .Where(s => s.Id == id)
+            .Select(s => s.CurrentCategory)
+            .FirstAsync();
+    }
+
+    public async Task<int> GetSessionCategoryVoteCount(Guid id, int categoryId)
+    {
+        return await _context.Sessions
+            .Where(s => s.Id == id)
+            .SelectMany(s => s.Votes)
+            .Where(v => v.CategoryId == categoryId)
+            .CountAsync();
+    }
+
+    public async Task<int> GetSessionUsersCount(Guid id)
+    {
+        return await _context.Sessions
+            .Where(s => s.Id == id)
+            .SelectMany(s => s.SessionUsers)
+            .CountAsync();
+    }
+
+    public async Task<IEnumerable<Vote>> GetSessionVotes(Guid id)
+    {
+        return await _context.Sessions
+            .Where(s => s.Id == id)
+            .SelectMany(s => s.Votes)
+            .Include(v => v.Category)
+            .ToListAsync();
+    }
+
+
+    public async Task<Category> MoveToNextCategory(Guid id)
+    {
+        var session = await _context.Sessions.FirstAsync(s => s.Id == id);
+
+        var nextCategoryId = session.CurrentCategoryId + 1;
+        var nextCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Id == nextCategoryId)
+            ?? throw new AlreadyLastCategoryException();
+
+        session.CurrentCategoryId = nextCategoryId;
+        await _context.SaveChangesAsync();
+
+        return nextCategory;
+    }
+
+}
