@@ -13,6 +13,7 @@ CREATE TABLE health_check.category (
 
 CREATE TABLE health_check.session (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    join_code INT NOT NULL UNIQUE,
     current_category_id INT NOT NULL DEFAULT 1,
     FOREIGN KEY (current_category_id)
         REFERENCES health_check.category(id)

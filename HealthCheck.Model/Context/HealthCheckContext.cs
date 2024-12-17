@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using HealthCheck.Model.Entities;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace HealthCheck.Model.Context;
@@ -49,12 +47,15 @@ public partial class HealthCheckContext : DbContext
 
             entity.ToTable("session", "health_check");
 
+            entity.HasIndex(e => e.JoinCode, "session_join_code_key").IsUnique();
+
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("id");
             entity.Property(e => e.CurrentCategoryId)
                 .HasDefaultValue(1)
                 .HasColumnName("current_category_id");
+            entity.Property(e => e.JoinCode).HasColumnName("join_code");
 
             entity.HasOne(d => d.CurrentCategory).WithMany(p => p.Sessions)
                 .HasForeignKey(d => d.CurrentCategoryId)

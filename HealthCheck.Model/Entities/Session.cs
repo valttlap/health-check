@@ -7,6 +7,8 @@ public partial class Session
 {
     public Guid Id { get; set; }
 
+    public int JoinCode { get; set; }
+
     public int CurrentCategoryId { get; set; }
 
     public virtual Category CurrentCategory { get; set; } = null!;

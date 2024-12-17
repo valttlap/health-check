@@ -11,7 +11,8 @@ public class SessionService(IUnitOfWork unitOfWork) : ISessionService
 
     public async Task<Session> CreateSession()
     {
-        return await _unitOfWork.SessionRepository.CreateSession();
+        var sessionCode = CreateSessionCode();
+        return await _unitOfWork.SessionRepository.CreateSession(sessionCode);
     }
 
     public async Task<bool> EveryoneVoted(Guid id, int categoryId)
@@ -53,5 +54,13 @@ public class SessionService(IUnitOfWork unitOfWork) : ISessionService
     public Task<Category> MoveToNextCategory(Guid id)
     {
         return _unitOfWork.SessionRepository.MoveToNextCategory(id);
+    }
+
+    private static int CreateSessionCode()
+    {
+        Random random = new();
+
+        int number = random.Next(100000, 1000000);
+        return number;
     }
 }

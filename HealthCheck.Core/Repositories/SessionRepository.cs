@@ -12,9 +12,12 @@ public class SessionRepository(HealthCheckContext context) : ISessionRepository
 {
     private readonly HealthCheckContext _context = context;
 
-    public async Task<Session> CreateSession()
+    public async Task<Session> CreateSession(int joinCode)
     {
-        var newSession = new Session();
+        var newSession = new Session()
+        {
+            JoinCode = joinCode
+        };
         await _context.Sessions.AddAsync(newSession);
         await _context.SaveChangesAsync();
         return newSession;
