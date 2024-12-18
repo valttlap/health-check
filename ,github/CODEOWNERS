@@ -1,0 +1,4 @@
+# This is a basic CODEOWNERS file that sets ownership for various parts of the repository.
+
+# Specify owners for all files in the repository
+* @jgsavola @valttlap @PirkkaSw
